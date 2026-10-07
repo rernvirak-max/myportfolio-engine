@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
+    'enquiry' => [
+        'notify_email' => env('ENQUIRY_NOTIFY_EMAIL'),
+        'queue' => (bool) env('ENQUIRY_NOTIFY_QUEUE', false),
+        'rate_limit' => (int) env('ENQUIRY_RATE_LIMIT', 5),
+    ],
+
 ];
