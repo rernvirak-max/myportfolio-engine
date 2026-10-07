@@ -72,6 +72,29 @@ Endpoints:
 
 On save, Telegram + email alerts are sent (sync by default; best-effort, failures are only logged).
 
+### Admin API (Sanctum bearer token)
+
+Create an admin user (prompts for password; re-run revokes all tokens):
+
+```bash
+php artisan admin:create you@example.com
+```
+
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/api/admin/login` | `{email, password}` → `{token, user}`; token expires in 14 days |
+| `POST` | `/api/admin/logout` | Revokes current token |
+| `GET` | `/api/admin/me` | `{user}` |
+| `GET` | `/api/admin/stats` | `{total, by_status}` |
+| `GET` | `/api/admin/overview` | KPIs, 30-day daily counts, latest 5 enquiries |
+| `GET` | `/api/admin/course-enquiries` | Paginated list; `?status=&search=&page=` |
+| `GET` | `/api/admin/course-enquiries/{id}` | Single enquiry |
+| `PATCH` | `/api/admin/course-enquiries/{id}` | `{status?, admin_note?}` |
+| `DELETE` | `/api/admin/course-enquiries/{id}` | Soft-delete not used — hard delete |
+| `GET` | `/api/admin/course-enquiries/export` | CSV download; same filters as list |
+
+All `/api/admin/*` routes except login require `Authorization: Bearer <token>`. CORS must allow `PATCH` and `DELETE` (configured via `FRONTEND_URLS`).
+
 ### Local setup
 
 ```bash

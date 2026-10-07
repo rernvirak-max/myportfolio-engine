@@ -34,6 +34,16 @@ class StoreCourseEnquiryRequest extends FormRequest
             'format' => ['required', Rule::in(CourseEnquiry::FORMATS)],
             'level' => ['required', Rule::in(CourseEnquiry::LEVELS)],
             'message' => ['required', 'string', 'min:10', 'max:2000'],
+            'course_id' => ['nullable', 'integer', Rule::exists('courses', 'id')],
+            'cohort_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('cohorts', 'id')->where(function ($q) {
+                    if ($this->filled('course_id')) {
+                        $q->where('course_id', $this->integer('course_id'));
+                    }
+                }),
+            ],
             // Honeypot: checked in the controller so bots get a fake success.
             'website' => ['nullable'],
         ];

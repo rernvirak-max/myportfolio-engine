@@ -17,7 +17,7 @@ return [
 
     'paths' => ['api/*'],
 
-    'allowed_methods' => ['GET', 'POST', 'OPTIONS'],
+    'allowed_methods' => ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
 
     'allowed_origins' => array_values(array_filter(array_map('trim', explode(',', (string) env('FRONTEND_URLS', 'https://roeun-vireak.mxlab.site,http://localhost:5173'))))),
 
