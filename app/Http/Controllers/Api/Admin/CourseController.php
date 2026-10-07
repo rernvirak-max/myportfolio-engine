@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCohortRequest;
 use App\Http\Requests\Admin\StoreCourseModuleRequest;
 use App\Http\Requests\Admin\StoreCourseRequest;
+use App\Http\Requests\Admin\UpdateCohortRequest;
 use App\Http\Requests\Admin\UpdateCourseRequest;
 use App\Http\Resources\CohortResource;
 use App\Http\Resources\CourseModuleResource;
@@ -21,8 +22,12 @@ class CourseController extends Controller
     public function index(): JsonResponse
     {
         $courses = Course::query()
-            ->withCount('enquiries')
-            ->with(['cohorts' => fn ($q) => $q->with('enquiries')])
+            ->withCount(['enquiries', 'modules'])
+            ->withSum('modules as modules_hours_total', 'hours')
+            ->with([
+                'modules:id,course_id,title,hours,order',
+                'cohorts' => fn ($q) => $q->with('enquiries'),
+            ])
             ->latest()
             ->get();
 
@@ -126,11 +131,11 @@ class CourseController extends Controller
         ], 201);
     }
 
-    public function updateCohort(StoreCohortRequest $request, Course $course, Cohort $cohort): JsonResponse
+    public function updateCohort(UpdateCohortRequest $request, Course $course, Cohort $cohort): JsonResponse
     {
         abort_unless($cohort->course_id === $course->id, 404);
         $cohort->fill($request->validated())->save();
-        $cohort->load('enquiries');
+        $cohort->load(['enquiries', 'course']);
 
         return response()->json([
             'data' => (new CohortResource($cohort))->resolve(),

@@ -31,6 +31,7 @@ class UpdateCourseRequest extends FormRequest
             'languages' => ['sometimes', 'nullable', 'array'],
             'languages.*' => ['string', 'max:40'],
             'level' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'min_students' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:500'],
             'is_published' => ['sometimes', 'boolean'],
         ];
     }

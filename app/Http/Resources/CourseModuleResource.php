@@ -14,6 +14,7 @@ class CourseModuleResource extends JsonResource
             'id' => $this->id,
             'course_id' => $this->course_id,
             'order' => $this->order,
+            'position' => $this->order,
             'title' => $this->title,
             'hours' => $this->hours,
             'description' => $this->description,

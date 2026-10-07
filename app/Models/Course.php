@@ -14,6 +14,7 @@ class Course extends Model
         'hours',
         'languages',
         'level',
+        'min_students',
         'is_published',
     ];
 
@@ -23,6 +24,7 @@ class Course extends Model
             'languages' => 'array',
             'is_published' => 'boolean',
             'hours' => 'integer',
+            'min_students' => 'integer',
         ];
     }
 

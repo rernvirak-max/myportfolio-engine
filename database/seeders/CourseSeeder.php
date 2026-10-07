@@ -9,42 +9,85 @@ class CourseSeeder extends Seeder
 {
     public function run(): void
     {
-        $course = Course::query()->updateOrCreate(
+        $fullStack = Course::query()->updateOrCreate(
             ['slug' => 'full-stack-teaching-course'],
             [
-                'title' => 'Full-stack teaching course',
+                'title' => 'Full-Stack Web Development',
                 'summary' => '60-hour Laravel + Vue curriculum with a Class Manager capstone, delivered bilingual in English and Khmer.',
                 'hours' => 60,
                 'languages' => ['English', 'Khmer'],
                 'level' => 'Beginner to intermediate',
+                'min_students' => 4,
                 'is_published' => true,
             ],
         );
 
-        if ($course->modules()->count() === 0) {
-            $modules = [
-                ['order' => 1, 'title' => 'Web foundations', 'hours' => 8, 'description' => 'HTML, CSS, JavaScript refreshers and tooling.'],
-                ['order' => 2, 'title' => 'PHP & Laravel core', 'hours' => 16, 'description' => 'Routing, Eloquent, validation, auth, and APIs.'],
-                ['order' => 3, 'title' => 'Vue frontend', 'hours' => 16, 'description' => 'Components, routing, forms, and talking to Laravel APIs.'],
-                ['order' => 4, 'title' => 'Class Manager capstone', 'hours' => 20, 'description' => 'Build an end-to-end Class Manager that ties Laravel and Vue together.'],
-            ];
-            foreach ($modules as $module) {
-                $course->modules()->create($module);
-            }
+        foreach ([
+            ['title' => 'Web foundations', 'hours' => 8, 'description' => 'HTML, CSS, JavaScript refreshers and tooling.'],
+            ['title' => 'PHP & Laravel core', 'hours' => 16, 'description' => 'Routing, Eloquent, validation, auth, and APIs.'],
+            ['title' => 'Vue frontend', 'hours' => 16, 'description' => 'Components, routing, forms, and talking to Laravel APIs.'],
+            ['title' => 'Class Manager capstone', 'hours' => 20, 'description' => 'Build an end-to-end Class Manager that ties Laravel and Vue together.'],
+        ] as $i => $module) {
+            $fullStack->modules()->updateOrCreate(
+                ['order' => $i + 1],
+                $module,
+            );
         }
 
-        if ($course->cohorts()->count() === 0) {
-            $course->cohorts()->create([
-                'title' => 'Next open intake',
+        $fullStack->cohorts()->updateOrCreate(
+            ['title' => 'Evening intake'],
+            [
                 'start_date' => now()->addWeeks(3)->toDateString(),
-                'end_date' => now()->addWeeks(3)->addMonths(2)->toDateString(),
-                'schedule_text' => 'Evenings · 3× per week (to confirm)',
+                'end_date' => now()->addWeeks(3)->addWeeks(10)->toDateString(),
+                'schedule_text' => 'Mon / Wed / Fri · 18:00–20:00 (to confirm)',
                 'format' => 'hybrid',
                 'seats' => 12,
+                'min_students' => null,
                 'price' => null,
                 'currency' => 'USD',
                 'status' => 'open',
-            ]);
+            ],
+        );
+
+        $devops = Course::query()->updateOrCreate(
+            ['slug' => 'devops-course'],
+            [
+                'title' => 'DevOps Course',
+                'summary' => 'Deploy and run real apps the way I do in production — Docker, CI/CD, Coolify/Nixpacks, Linux servers, and AWS. Taught bilingual in English and Khmer.',
+                'hours' => 40,
+                'languages' => ['English', 'Khmer'],
+                'level' => 'Intermediate',
+                'min_students' => 4,
+                'is_published' => true,
+            ],
+        );
+
+        foreach ([
+            ['title' => 'Linux servers & fundamentals', 'hours' => 8, 'description' => 'SSH, users, networking basics, and keeping a box healthy.'],
+            ['title' => 'Docker & containers', 'hours' => 10, 'description' => 'Images, Compose, volumes, and packaging Laravel/Vue apps.'],
+            ['title' => 'CI/CD pipelines', 'hours' => 8, 'description' => 'Automated build, test, and deploy flows for real projects.'],
+            ['title' => 'Coolify, Nixpacks & deploys', 'hours' => 8, 'description' => 'Ship to a VPS the way the portfolio and side projects go live.'],
+            ['title' => 'AWS & production ops', 'hours' => 6, 'description' => 'Core AWS pieces, logs, backups, and what breaks in production.'],
+        ] as $i => $module) {
+            $devops->modules()->updateOrCreate(
+                ['order' => $i + 1],
+                $module,
+            );
         }
+
+        $devops->cohorts()->updateOrCreate(
+            ['title' => 'Evening class'],
+            [
+                'start_date' => now()->addWeeks(4)->toDateString(),
+                'end_date' => now()->addWeeks(4)->addWeeks(8)->toDateString(),
+                'schedule_text' => 'Tue / Thu · 18:00–20:30 (to confirm)',
+                'format' => 'online',
+                'seats' => 12,
+                'min_students' => null,
+                'price' => null,
+                'currency' => 'USD',
+                'status' => 'open',
+            ],
+        );
     }
 }

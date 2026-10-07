@@ -23,6 +23,13 @@ class CourseEnquiryResource extends JsonResource
             'admin_note' => $this->admin_note,
             'course_id' => $this->course_id,
             'cohort_id' => $this->cohort_id,
+            'cohort' => $this->when(
+                $this->relationLoaded('cohort') && $this->cohort,
+                fn () => [
+                    'id' => $this->cohort->id,
+                    'title' => $this->cohort->title,
+                ],
+            ),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

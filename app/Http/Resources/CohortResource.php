@@ -10,11 +10,20 @@ class CohortResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $enrolled = $this->relationLoaded('enquiries')
+        $enrolledOnly = $this->relationLoaded('enquiries')
             ? $this->enquiries->where('status', 'enrolled')->count()
             : $this->enrolledCount();
 
-        $seatsLeft = max(0, (int) $this->seats - $enrolled);
+        // Progress toward min_students includes pipeline requests (new + contacted + enrolled).
+        $openingCount = $this->relationLoaded('enquiries')
+            ? $this->enquiries->whereIn('status', ['new', 'contacted', 'enrolled'])->count()
+            : $this->openingRequestCount();
+
+        $seatsLeft = max(0, (int) $this->seats - $enrolledOnly);
+
+        if (! $this->relationLoaded('course')) {
+            $this->resource->loadMissing('course');
+        }
 
         return [
             'id' => $this->id,
@@ -26,7 +35,9 @@ class CohortResource extends JsonResource
             'format' => $this->format,
             'seats' => $this->seats,
             'seats_left' => $seatsLeft,
-            'enrolled_count' => $enrolled,
+            // Frontend uses this for "X of N needed to open" / class confirmed.
+            'enrolled_count' => $openingCount,
+            'min_students' => $this->min_students ?? $this->course?->min_students,
             'price' => $this->price,
             'currency' => $this->currency,
             'status' => $this->status,

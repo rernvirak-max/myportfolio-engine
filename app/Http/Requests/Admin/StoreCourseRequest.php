@@ -30,6 +30,7 @@ class StoreCourseRequest extends FormRequest
             'languages' => ['nullable', 'array'],
             'languages.*' => ['string', 'max:40'],
             'level' => ['nullable', 'string', 'max:100'],
+            'min_students' => ['nullable', 'integer', 'min:1', 'max:500'],
             'is_published' => ['sometimes', 'boolean'],
         ];
     }

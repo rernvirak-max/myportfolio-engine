@@ -22,8 +22,9 @@ class StoreCohortRequest extends FormRequest
             'schedule_text' => ['nullable', 'string', 'max:255'],
             'format' => ['required', Rule::in(Cohort::FORMATS)],
             'seats' => ['required', 'integer', 'min:1', 'max:500'],
+            'min_students' => ['nullable', 'integer', 'min:1', 'max:500'],
             'price' => ['nullable', 'numeric', 'min:0'],
-            'currency' => ['nullable', 'string', 'max:8'],
+            'currency' => ['nullable', Rule::in(['USD', 'KHR'])],
             'status' => ['required', Rule::in(Cohort::STATUSES)],
         ];
     }

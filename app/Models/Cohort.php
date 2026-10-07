@@ -20,6 +20,7 @@ class Cohort extends Model
         'schedule_text',
         'format',
         'seats',
+        'min_students',
         'price',
         'currency',
         'status',
@@ -31,6 +32,7 @@ class Cohort extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'seats' => 'integer',
+            'min_students' => 'integer',
             'price' => 'decimal:2',
         ];
     }
@@ -45,9 +47,30 @@ class Cohort extends Model
         return $this->hasMany(CourseEnquiry::class);
     }
 
+    /** Confirmed seats (status = enrolled). Used for seats_left. */
     public function enrolledCount(): int
     {
         return $this->enquiries()->where('status', 'enrolled')->count();
+    }
+
+    /**
+     * Requests that count toward opening the class (new + contacted + enrolled).
+     * Exposed as enrolled_count in the API for the frontend progress UI.
+     */
+    public function openingRequestCount(): int
+    {
+        return $this->enquiries()
+            ->whereIn('status', ['new', 'contacted', 'enrolled'])
+            ->count();
+    }
+
+    public function effectiveMinStudents(): int
+    {
+        if ($this->min_students !== null) {
+            return (int) $this->min_students;
+        }
+
+        return (int) ($this->course?->min_students ?? 4);
     }
 
     public function seatsLeft(): int
