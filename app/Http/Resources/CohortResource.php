@@ -25,6 +25,10 @@ class CohortResource extends JsonResource
             $this->resource->loadMissing('course');
         }
 
+        $earlyBirdSeatsLeft = $this->earlyBirdSeatsLeft();
+        $earlyBirdActive = $this->earlyBirdActive();
+        $effectivePrice = $this->effectivePrice();
+
         return [
             'id' => $this->id,
             'course_id' => $this->course_id,
@@ -40,6 +44,16 @@ class CohortResource extends JsonResource
             'min_students' => $this->min_students ?? $this->course?->min_students,
             'price' => $this->price,
             'currency' => $this->currency,
+            'installment_count' => $this->installment_count,
+            'installment_amount' => $this->installment_amount,
+            'deposit_amount' => $this->deposit_amount,
+            'early_bird_price' => $this->early_bird_price,
+            'early_bird_until' => $this->early_bird_until?->toDateString(),
+            'early_bird_seats' => $this->early_bird_seats,
+            'referral_discount' => $this->referral_discount,
+            'early_bird_seats_left' => $earlyBirdSeatsLeft,
+            'early_bird_active' => $earlyBirdActive,
+            'effective_price' => $effectivePrice,
             'status' => $this->status,
         ];
     }

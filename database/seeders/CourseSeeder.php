@@ -34,6 +34,7 @@ class CourseSeeder extends Seeder
             );
         }
 
+        // Fake demo prices only — not real tuition.
         $fullStack->cohorts()->updateOrCreate(
             ['title' => 'Evening intake'],
             [
@@ -43,8 +44,37 @@ class CourseSeeder extends Seeder
                 'format' => 'hybrid',
                 'seats' => 12,
                 'min_students' => null,
-                'price' => null,
+                'price' => 99.00,
                 'currency' => 'USD',
+                'installment_count' => 4,
+                'installment_amount' => 25.00,
+                'deposit_amount' => 20.00,
+                'early_bird_price' => 79.00,
+                'early_bird_until' => now()->addWeeks(2)->toDateString(),
+                'early_bird_seats' => 5,
+                'referral_discount' => 10.00,
+                'status' => 'open',
+            ],
+        );
+
+        $fullStack->cohorts()->updateOrCreate(
+            ['title' => 'Weekend online'],
+            [
+                'start_date' => now()->addWeeks(6)->toDateString(),
+                'end_date' => now()->addWeeks(6)->addWeeks(10)->toDateString(),
+                'schedule_text' => 'Sat / Sun · 09:00–12:00 (to confirm)',
+                'format' => 'online',
+                'seats' => 10,
+                'min_students' => 4,
+                'price' => 89.00,
+                'currency' => 'USD',
+                'installment_count' => 3,
+                'installment_amount' => 30.00,
+                'deposit_amount' => 15.00,
+                'early_bird_price' => null,
+                'early_bird_until' => null,
+                'early_bird_seats' => null,
+                'referral_discount' => 5.00,
                 'status' => 'open',
             ],
         );
@@ -84,8 +114,38 @@ class CourseSeeder extends Seeder
                 'format' => 'online',
                 'seats' => 12,
                 'min_students' => null,
-                'price' => null,
+                'price' => 75.00,
                 'currency' => 'USD',
+                'installment_count' => 3,
+                'installment_amount' => 25.00,
+                'deposit_amount' => 15.00,
+                'early_bird_price' => 60.00,
+                'early_bird_until' => now()->addWeeks(3)->toDateString(),
+                'early_bird_seats' => 4,
+                'referral_discount' => 8.00,
+                'status' => 'open',
+            ],
+        );
+
+        // KHR demo class — whole-riel fake amounts only.
+        $devops->cohorts()->updateOrCreate(
+            ['title' => 'Phnom Penh in-person'],
+            [
+                'start_date' => now()->addWeeks(5)->toDateString(),
+                'end_date' => now()->addWeeks(5)->addWeeks(8)->toDateString(),
+                'schedule_text' => 'Sat · 13:00–17:00 (to confirm)',
+                'format' => 'in_person',
+                'seats' => 8,
+                'min_students' => 4,
+                'price' => 299000,
+                'currency' => 'KHR',
+                'installment_count' => 2,
+                'installment_amount' => 150000,
+                'deposit_amount' => 50000,
+                'early_bird_price' => 249000,
+                'early_bird_until' => now()->addWeeks(2)->toDateString(),
+                'early_bird_seats' => 3,
+                'referral_discount' => 20000,
                 'status' => 'open',
             ],
         );

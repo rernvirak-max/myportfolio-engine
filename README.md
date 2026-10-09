@@ -95,6 +95,25 @@ php artisan admin:create you@example.com
 
 All `/api/admin/*` routes except login require `Authorization: Bearer <token>`. CORS must allow `PATCH` and `DELETE` (configured via `FRONTEND_URLS`).
 
+### Cohort payment options
+
+Each class (`cohort`) may expose optional payment fields (all nullable = option off). Amounts always use the cohort `currency` (`USD` or `KHR`; KHR must be whole numbers).
+
+| Field | Meaning |
+|---|---|
+| `installment_count` / `installment_amount` | Monthly installments (count 2–12) |
+| `deposit_amount` | Deposit to hold a seat |
+| `early_bird_price` / `early_bird_until` / `early_bird_seats` | Early-bird offer |
+| `referral_discount` | Refer-a-friend discount (both sides) |
+
+Computed on every cohort in public + admin responses (keys always present):
+
+- `early_bird_seats_left` — remaining early-bird seats (`null` if unlimited)
+- `early_bird_active` — whether early bird applies right now
+- `effective_price` — early-bird price while active, otherwise `price`
+
+Seed demo data (fake amounts only): `php artisan db:seed --class=CourseSeeder`
+
 ### Local setup
 
 ```bash
@@ -102,6 +121,7 @@ composer install
 cp .env.example .env && php artisan key:generate
 touch database/database.sqlite
 php artisan migrate
+php artisan db:seed --class=CourseSeeder
 php artisan serve            # http://127.0.0.1:8000
 php artisan test             # uses in-memory sqlite
 ```

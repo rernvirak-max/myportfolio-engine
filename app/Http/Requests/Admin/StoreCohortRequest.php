@@ -5,9 +5,12 @@ namespace App\Http\Requests\Admin;
 use App\Models\Cohort;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreCohortRequest extends FormRequest
 {
+    use ValidatesCohortPaymentOptions;
+
     public function authorize(): bool
     {
         return true;
@@ -26,6 +29,12 @@ class StoreCohortRequest extends FormRequest
             'price' => ['nullable', 'numeric', 'min:0'],
             'currency' => ['nullable', Rule::in(['USD', 'KHR'])],
             'status' => ['required', Rule::in(Cohort::STATUSES)],
+            ...$this->paymentOptionRules(sometimes: false),
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $this->addPaymentOptionChecks($validator, $this->paymentValuesFromInput());
     }
 }

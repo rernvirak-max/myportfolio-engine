@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class Cohort extends Model
 {
@@ -23,6 +24,13 @@ class Cohort extends Model
         'min_students',
         'price',
         'currency',
+        'installment_count',
+        'installment_amount',
+        'deposit_amount',
+        'early_bird_price',
+        'early_bird_until',
+        'early_bird_seats',
+        'referral_discount',
         'status',
     ];
 
@@ -34,6 +42,13 @@ class Cohort extends Model
             'seats' => 'integer',
             'min_students' => 'integer',
             'price' => 'decimal:2',
+            'installment_count' => 'integer',
+            'installment_amount' => 'decimal:2',
+            'deposit_amount' => 'decimal:2',
+            'early_bird_price' => 'decimal:2',
+            'early_bird_until' => 'date',
+            'early_bird_seats' => 'integer',
+            'referral_discount' => 'decimal:2',
         ];
     }
 
@@ -47,9 +62,13 @@ class Cohort extends Model
         return $this->hasMany(CourseEnquiry::class);
     }
 
-    /** Confirmed seats (status = enrolled). Used for seats_left. */
+    /** Confirmed seats (status = enrolled). Used for seats_left and early-bird seats. */
     public function enrolledCount(): int
     {
+        if ($this->relationLoaded('enquiries')) {
+            return $this->enquiries->where('status', 'enrolled')->count();
+        }
+
         return $this->enquiries()->where('status', 'enrolled')->count();
     }
 
@@ -59,6 +78,10 @@ class Cohort extends Model
      */
     public function openingRequestCount(): int
     {
+        if ($this->relationLoaded('enquiries')) {
+            return $this->enquiries->whereIn('status', ['new', 'contacted', 'enrolled'])->count();
+        }
+
         return $this->enquiries()
             ->whereIn('status', ['new', 'contacted', 'enrolled'])
             ->count();
@@ -76,5 +99,52 @@ class Cohort extends Model
     public function seatsLeft(): int
     {
         return max(0, (int) $this->seats - $this->enrolledCount());
+    }
+
+    public function earlyBirdSeatsLeft(): ?int
+    {
+        if ($this->early_bird_seats === null) {
+            return null;
+        }
+
+        return max(0, (int) $this->early_bird_seats - $this->enrolledCount());
+    }
+
+    public function earlyBirdActive(): bool
+    {
+        if ($this->early_bird_price === null || $this->price === null) {
+            return false;
+        }
+
+        if ((float) $this->early_bird_price >= (float) $this->price) {
+            return false;
+        }
+
+        if ($this->early_bird_until !== null) {
+            $until = $this->early_bird_until instanceof Carbon
+                ? $this->early_bird_until->toDateString()
+                : (string) $this->early_bird_until;
+
+            if (today()->toDateString() > $until) {
+                return false;
+            }
+        }
+
+        if ($this->early_bird_seats !== null && $this->earlyBirdSeatsLeft() <= 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function effectivePrice(): ?string
+    {
+        $amount = $this->earlyBirdActive() ? $this->early_bird_price : $this->price;
+
+        if ($amount === null) {
+            return null;
+        }
+
+        return number_format((float) $amount, 2, '.', '');
     }
 }

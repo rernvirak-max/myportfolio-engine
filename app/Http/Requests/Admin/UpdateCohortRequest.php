@@ -5,9 +5,12 @@ namespace App\Http\Requests\Admin;
 use App\Models\Cohort;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateCohortRequest extends FormRequest
 {
+    use ValidatesCohortPaymentOptions;
+
     public function authorize(): bool
     {
         return true;
@@ -26,6 +29,18 @@ class UpdateCohortRequest extends FormRequest
             'price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'currency' => ['sometimes', 'nullable', Rule::in(['USD', 'KHR'])],
             'status' => ['sometimes', 'required', Rule::in(Cohort::STATUSES)],
+            ...$this->paymentOptionRules(sometimes: true),
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        /** @var Cohort|null $cohort */
+        $cohort = $this->route('cohort');
+        if (! $cohort instanceof Cohort) {
+            return;
+        }
+
+        $this->addPaymentOptionChecks($validator, $this->paymentValuesMergedWithCohort($cohort));
     }
 }
